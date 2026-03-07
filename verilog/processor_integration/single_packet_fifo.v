@@ -20,6 +20,7 @@ module single_packet_fifo
     parameter FIFO_DEPTH_WORDS = 256 // 256 * 8 bytes = 2KB buffer
   )
   (
+    input port_master,
     // --- Data path interface (output)
     output reg [DATA_WIDTH-1:0]         out_data,
     output reg [CTRL_WIDTH-1:0]         out_ctrl,
@@ -63,50 +64,71 @@ module single_packet_fifo
   reg [ADDR_WIDTH-1:0] wr_ptr, rd_ptr;
   reg [ADDR_WIDTH:0]   pkt_len_words; // Stores the length of the buffered packet in words
 
+  wire [DATA_WIDTH+CTRL_WIDTH-1:0] fifo_din;
+  wire [DATA_WIDTH+CTRL_WIDTH-1:0] fifo_dout;
+  wire                             fifo_we;
+
   // Wires for BRAM interface
-  wire [DATA_WIDTH+CTRL_WIDTH-1:0] ram_din;
+  wire [DATA_WIDTH+CTRL_WIDTH-1:0] ram_dina;
+  wire [DATA_WIDTH+CTRL_WIDTH-1:0] ram_douta;
+  wire                             ram_wea;
+  wire [7:0]                       ram_addra;
+  wire                             ram_ena;
+  
   wire [DATA_WIDTH+CTRL_WIDTH-1:0] ram_dout;
-  wire                             ram_we;
+  wire [7:0]                       ram_addrb;
+  wire                             ram_enb;
+  
+  assign ram_addra  = port_master ? cpu_addr                     : wr_ptr;
+  assign ram_dina   = port_master ? {cpu_in_ctrl, cpu_in_data}   : fifo_din;
+  assign ram_wea    = port_master ? cpu_we                       : fifo_we;
+  assign ram_ena    = port_master ? cpu_en                       : 1'b1;
+  
+  assign ram_addrb  = port_master ? 8'b0  : rd_ptr;
+  assign ram_enb    = port_master ? 1'b0  : 1'b1;
+  //assign ram_doutb  = port_master ? 72'bz : fifo_dout;
 
-  // Instantiate the dual-port Block RAM, using convertible_FIFO as the memory core.
-  // This replaces the inferred data_mem and ctrl_mem arrays and merges them.
-//   convertible_FIFO ram_inst (
-//       .addra(wr_ptr),    // Port A for writing
-//       .clka(clk),
-//       .dina(ram_din),
-//       .wea(ram_we),
-//       .ena(1'b1),
-//       .dinb(72'b0),      // Unused
-//       .douta(),          // Unused
+// Instantiate the dual-port Block RAM, using convertible_FIFO as the memory core.
+// This replaces the inferred data_mem and ctrl_mem arrays and merges them.
+   convertible_FIFO ram_inst (
+       .addra(ram_addra),    // Port A for writing
+       .clka(clk),
+       .dina(ram_dina),
+       .wea(ram_wea),
+       .ena(ram_ena),
+       .douta({cpu_out_ctrl, cpu_out_data}),
 
-//       .addrb(rd_ptr),    // Port B for reading
-//       .clkb(clk),
-//       .doutb(ram_dout),
-//       .enb(1'b1),
-//       .web(1'b0)         // Port B is read-only
-//   );
+       .addrb(rd_ptr),    // Port B for reading
+       .clkb(clk),
+       .dinb(72'b0),
+       .web(1'b0),         // Port B is read-only
+       .enb(ram_enb),
+		 .doutb(ram_dout)
+   );
 
-  convertible_FIFO ram_inst (
-      .addra(cpu_addr),    // Port A for writing
-      .clka(clk),
-      .dina({cpu_in_ctrl, cpu_in_data}),
-      .wea(cpu_we),
-      .ena(cpu_en),
-      .dinb(72'b0),      // Unused
-      .douta({cpu_out_ctrl, cpu_out_data}),          // Unused
+//  convertible_FIFO ram_inst (
+//      .addra(cpu_addr),    // Port A for writing
+//      .clka(clk),
+//      .dina({cpu_in_ctrl, cpu_in_data}),
+//      .wea(cpu_we),
+//      .ena(cpu_en),
+//      .dinb(72'b0),      // Unused
+//      .douta({cpu_out_ctrl, cpu_out_data}),          // Unused
+//
+//      .addrb(8'b0),    // Port B for reading
+//      .clkb(clk),
+//      .doutb(ram_dout),
+//      .enb(1'b0),
+//      .web(1'b0)         // Port B is read-only
+//  );
+  
 
-      .addrb(8'b0),    // Port B for reading
-      .clkb(clk),
-      .doutb(ram_dout),
-      .enb(1'b0),
-      .web(1'b0)         // Port B is read-only
-  );
 
   // End-of-packet is indicated by a non-zero ctrl value in the NetFPGA framework
   wire is_eop = (in_ctrl != 0);
 
-  assign ram_we = ((state == STATE_IDLE || state == STATE_RECEIVING) && in_wr);
-  assign ram_din = {in_ctrl, in_data};
+  assign fifo_we = ((state == STATE_IDLE || state == STATE_RECEIVING) && in_wr);
+  assign fifo_din = {in_ctrl, in_data};
 
   // Combinational logic for state transitions and outputs
   always @(*) begin

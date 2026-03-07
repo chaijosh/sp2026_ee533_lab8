@@ -26,17 +26,18 @@ module network_processor
     parameter FIFO_DEPTH_WORDS = 256
 	 )
 	 (
+	 input 										 memory_port_master,
     // --- Data path interface (output)
-    output wire [DATA_WIDTH-1:0]         out_data,
-    output wire [CTRL_WIDTH-1:0]         out_ctrl,
-    output wire                          out_wr,
+    output wire [DATA_WIDTH-1:0]        out_data,
+    output wire [CTRL_WIDTH-1:0]        out_ctrl,
+    output wire                         out_wr,
     input                               out_rdy,
 
     // --- Data path interface (input)
     input      [DATA_WIDTH-1:0]         in_data,
     input      [CTRL_WIDTH-1:0]         in_ctrl,
     input                               in_wr,
-    output wire                          in_rdy,
+    output wire                         in_rdy,
 
     // --- Misc
     input                               clk,
@@ -52,6 +53,7 @@ module network_processor
     .CTRL_WIDTH(CTRL_WIDTH),
     .FIFO_DEPTH_WORDS(FIFO_DEPTH_WORDS)
   ) fifo_instance(
+	 .port_master(memory_port_master),
     .out_data(out_data),
     .out_ctrl(out_ctrl),
     .out_wr(out_wr),

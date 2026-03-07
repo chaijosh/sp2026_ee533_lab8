@@ -21,9 +21,9 @@ int isim_run(int argc, char **argv)
     xsi_register_info(&xsi_info);
 
     work_m_00000000000866782574_2073120511_init();
-    xilinxcorelib_ver_m_00000000003806943309_2682550572_init();
+    xilinxcorelib_ver_m_00000000003806943309_0930663786_init();
     work_m_00000000004290218603_0423909594_init();
-    work_m_00000000003154449880_3207759200_init();
+    work_m_00000000001215953602_3207759200_init();
     work_m_00000000004178438750_4200415898_init();
 
 
