@@ -1,0 +1,28 @@
+Determining compilation order of HDL files
+Analyzing Verilog file convertible_FIFO.v
+Analyzing Verilog file single_packet_fifo.v
+Analyzing Verilog file single_packet_fifo_tb.v
+Analyzing Verilog file C:/Xilinx/10.1/ISE/verilog/src/glbl.v
+Saving Verilog parse-tree work.convertible_FIFO into
+z:/ee533/lab8_sp26/verilog/fifo/isim/work/convertible_@f@i@f@o.sdb
+Saving Verilog parse-tree work.single_packet_fifo into
+z:/ee533/lab8_sp26/verilog/fifo/isim/work/single_packet_fifo.sdb
+Saving Verilog parse-tree work.single_packet_fifo_tb into
+z:/ee533/lab8_sp26/verilog/fifo/isim/work/single_packet_fifo_tb.sdb
+Saving Verilog parse-tree work.glbl into
+z:/ee533/lab8_sp26/verilog/fifo/isim/work/glbl.sdb
+Starting static elaboration
+Restoring Verilog parse-tree xilinxcorelib_ver.BLKMEMDP_V6_3 from
+c:/xilinx/10.1/ise/verilog/hdp/nt/xilinxcorelib_ver/xilinxcorelib_ver.sdbl
+Completed static elaboration
+Fuse Memory Usage: 55176 Kb
+Fuse CPU Usage: 312 ms
+Compiling module glbl
+Compiling module BLKMEMDP_V6_3(c_addra_width=8,c_...
+Compiling module convertible_FIFO
+Compiling module single_packet_fifo(DATA_WIDTH=64...
+Compiling module single_packet_fifo_tb
+Compiled 5 Verilog Units
+Built simulation executable single_packet_fifo_tb_isim_beh.exe
+Fuse Memory Usage: 58764 Kb
+Fuse CPU Usage: 546 ms

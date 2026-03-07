@@ -1,0 +1,4 @@
+verilog work "convertible_FIFO.v"
+verilog work "single_packet_fifo.v"
+verilog work "single_packet_fifo_tb.v"
+verilog work "C:/Xilinx/10.1/ISE/verilog/src/glbl.v"

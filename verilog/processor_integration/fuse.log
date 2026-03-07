@@ -1,0 +1,60 @@
+Determining compilation order of HDL files
+Analyzing Verilog file sign_extend.v
+Analyzing Verilog file instr_mem_dp.v
+Analyzing Verilog file convertible_FIFO.v
+Analyzing Verilog file control_unit.v
+Analyzing Verilog file alu_control.v
+Analyzing Verilog file alu_64.v
+Analyzing Verilog file single_packet_fifo.v
+Analyzing Verilog file cpu_CMT.v
+Analyzing Verilog file network_processor.v
+Analyzing Verilog file network_processor_tb.v
+Analyzing Verilog file C:/Xilinx/10.1/ISE/verilog/src/glbl.v
+Saving Verilog parse-tree work.sign_extend into
+z:/ee533/lab8_sp26/verilog/processor_integration/isim/work/sign_extend.sdb
+Saving Verilog parse-tree work.instr_mem_dp into
+z:/ee533/lab8_sp26/verilog/processor_integration/isim/work/instr_mem_dp.sdb
+Saving Verilog parse-tree work.convertible_FIFO into
+z:/ee533/lab8_sp26/verilog/processor_integration/isim/work/convertible_@f@i@f@o.
+sdb
+Saving Verilog parse-tree work.control_unit into
+z:/ee533/lab8_sp26/verilog/processor_integration/isim/work/control_unit.sdb
+Saving Verilog parse-tree work.alu_control into
+z:/ee533/lab8_sp26/verilog/processor_integration/isim/work/alu_control.sdb
+Saving Verilog parse-tree work.alu_64 into
+z:/ee533/lab8_sp26/verilog/processor_integration/isim/work/alu_64.sdb
+Saving Verilog parse-tree work.single_packet_fifo into
+z:/ee533/lab8_sp26/verilog/processor_integration/isim/work/single_packet_fifo.sd
+b
+Saving Verilog parse-tree work.cpu_CMT into
+z:/ee533/lab8_sp26/verilog/processor_integration/isim/work/cpu_@c@m@t.sdb
+Saving Verilog parse-tree work.network_processor into
+z:/ee533/lab8_sp26/verilog/processor_integration/isim/work/network_processor.sdb
+Saving Verilog parse-tree work.network_processor_tb into
+z:/ee533/lab8_sp26/verilog/processor_integration/isim/work/network_processor_tb.
+sdb
+Saving Verilog parse-tree work.glbl into
+z:/ee533/lab8_sp26/verilog/processor_integration/isim/work/glbl.sdb
+Starting static elaboration
+Restoring Verilog parse-tree xilinxcorelib_ver.BLKMEMDP_V6_3 from
+c:/xilinx/10.1/ise/verilog/hdp/nt/xilinxcorelib_ver/xilinxcorelib_ver.sdbl
+Completed static elaboration
+Fuse Memory Usage: 55176 Kb
+Fuse CPU Usage: 374 ms
+Compiling module glbl
+Compiling module BLKMEMDP_V6_3(c_addra_width=8,c_...
+Compiling module convertible_FIFO
+Compiling module single_packet_fifo(DATA_WIDTH=64...
+Compiling module BLKMEMDP_V6_3(c_addra_width=11,c...
+Compiling module instr_mem_dp
+Compiling module control_unit
+Compiling module alu_control
+Compiling module sign_extend
+Compiling module alu_64
+Compiling module cpu_CMT
+Compiling module network_processor
+Compiling module network_processor_tb
+Compiled 13 Verilog Units
+Built simulation executable network_processor_tb_isim_beh.exe
+Fuse Memory Usage: 58764 Kb
+Fuse CPU Usage: 686 ms

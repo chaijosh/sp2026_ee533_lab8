@@ -1,0 +1,12 @@
+# Output products list for <convertible_FIFO>
+convertible_FIFO.asy
+convertible_FIFO.mif
+convertible_FIFO.ngc
+convertible_FIFO.sym
+convertible_FIFO.v
+convertible_FIFO.veo
+convertible_FIFO.vhd
+convertible_FIFO.vho
+convertible_FIFO.xco
+convertible_FIFO_flist.txt
+convertible_FIFO_xmdf.tcl
