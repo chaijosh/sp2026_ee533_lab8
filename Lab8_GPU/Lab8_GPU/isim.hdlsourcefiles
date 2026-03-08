@@ -1,0 +1,15 @@
+C:/Xilinx/10.1/ISE/verilog/src/glbl.v
+C:/Documents and Settings/student/Desktop/processor_integration/Lab8_GPU/alu_64.v
+C:/Documents and Settings/student/Desktop/processor_integration/Lab8_GPU/sign_extend.v
+C:/Documents and Settings/student/Desktop/processor_integration/Lab8_GPU/alu_control.v
+C:/Documents and Settings/student/Desktop/processor_integration/Lab8_GPU/control_unit.v
+C:/Documents and Settings/student/Desktop/processor_integration/Lab8_GPU/cpu_CMT.v
+C:/Documents and Settings/student/Desktop/processor_integration/Lab8_GPU/bfloat_alu.v
+C:/Documents and Settings/student/Desktop/processor_integration/Lab8_GPU/alu64_BFloat16.v
+C:/Documents and Settings/student/Desktop/processor_integration/Lab8_GPU/sign_extend_GPU.v
+C:/Documents and Settings/student/Desktop/processor_integration/Lab8_GPU/control_unit_GPU.v
+C:/Documents and Settings/student/Desktop/processor_integration/Lab8_GPU/GPU_SIMD.v
+K:/IP0_K.14/env/Databases/ip/export/rtf/verilog/src/XilinxCoreLib/BLKMEMDP_V6_3.v
+C:/Documents and Settings/student/Desktop/processor_integration/Lab8_GPU/single_packet_fifo.v
+C:/Documents and Settings/student/Desktop/processor_integration/Lab8_GPU/network_processor.v
+C:/Documents and Settings/student/Desktop/processor_integration/Lab8_GPU/network_processor_full_tb.v

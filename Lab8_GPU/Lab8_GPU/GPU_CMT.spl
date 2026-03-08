@@ -1,0 +1,18 @@
+[Inputs]
+CLK
+RSTB
+debug_enable
+debug_instr_write_en
+debug_data_write_en
+=debug_pc[8:0]=
+=debug_instr_in[31:0]=
+=debug_addr_in[7:0]=
+=debug_data_in[63:0]=
+[Outputs]
+=debug_instr_out[31:0]=
+=debug_data_out[63:0]=
+=PC_END[8:0]=
+[BiDir]
+[ATTRIBUTES]
+VeriModel GPU_CMT
+

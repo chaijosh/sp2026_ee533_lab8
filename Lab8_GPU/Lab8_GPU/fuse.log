@@ -1,0 +1,119 @@
+Determining compilation order of HDL files
+Analyzing Verilog file sign_extend_GPU.v
+Analyzing Verilog file sign_extend.v
+Analyzing Verilog file instr_mem_dp_GPU.v
+Analyzing Verilog file instr_mem_dp.v
+Analyzing Verilog file convertible_FIFO.v
+Analyzing Verilog file control_unit_GPU.v
+Analyzing Verilog file control_unit.v
+Analyzing Verilog file bfloat_alu.v
+Analyzing Verilog file alu_control.v
+Analyzing Verilog file alu_64.v
+Analyzing Verilog file alu64_BFloat16.v
+Analyzing Verilog file single_packet_fifo.v
+Analyzing Verilog file GPU_SIMD.v
+Analyzing Verilog file cpu_CMT.v
+Analyzing Verilog file network_processor.v
+Analyzing Verilog file network_processor_full_tb.v
+Analyzing Verilog file C:/Xilinx/10.1/ISE/verilog/src/glbl.v
+Saving Verilog parse-tree work.sign_extend_GPU into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/sign_extend_@g
+@p@u.sdb
+Saving Verilog parse-tree work.sign_extend into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/sign_extend.sd
+b
+Saving Verilog parse-tree work.instr_mem_dp_GPU into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/instr_mem_dp_@
+g@p@u.sdb
+Saving Verilog parse-tree work.instr_mem_dp into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/instr_mem_dp.s
+db
+Saving Verilog parse-tree work.convertible_FIFO into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/convertible_@f
+@i@f@o.sdb
+Saving Verilog parse-tree work.control_unit_GPU into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/control_unit_@
+g@p@u.sdb
+Saving Verilog parse-tree work.control_unit into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/control_unit.s
+db
+Saving Verilog parse-tree work.lzc_8bit into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/lzc_8bit.sdb
+Saving Verilog parse-tree work.bfloat16_ex0_prep into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/bfloat16_ex0_p
+rep.sdb
+Saving Verilog parse-tree work.bfloat16_simd64_ex0_prep into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/bfloat16_simd6
+4_ex0_prep.sdb
+Saving Verilog parse-tree work.bfloat16_ex1_align into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/bfloat16_ex1_a
+lign.sdb
+Saving Verilog parse-tree work.bfloat16_simd64_ex1_align into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/bfloat16_simd6
+4_ex1_align.sdb
+Saving Verilog parse-tree work.bfloat16_ex2_norm into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/bfloat16_ex2_n
+orm.sdb
+Saving Verilog parse-tree work.bfloat16_simd64_ex2_norm into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/bfloat16_simd6
+4_ex2_norm.sdb
+Saving Verilog parse-tree work.alu_control into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/alu_control.sd
+b
+Saving Verilog parse-tree work.alu_64 into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/alu_64.sdb
+Saving Verilog parse-tree work.alu_64_GPU into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/alu_64_@g@p@u.
+sdb
+Saving Verilog parse-tree work.single_packet_fifo into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/single_packet_
+fifo.sdb
+Saving Verilog parse-tree work.GPU_CMT into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/@g@p@u_@c@m@t.
+sdb
+Saving Verilog parse-tree work.cpu_CMT into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/cpu_@c@m@t.sdb
+Saving Verilog parse-tree work.network_processor into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/network_proces
+sor.sdb
+Saving Verilog parse-tree work.network_processor_full_tb into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/network_proces
+sor_full_tb.sdb
+Saving Verilog parse-tree work.glbl into c:/documents and
+settings/student/desktop/processor_integration/lab8_gpu/isim/work/glbl.sdb
+Starting static elaboration
+Restoring Verilog parse-tree xilinxcorelib_ver.BLKMEMDP_V6_3 from
+c:/xilinx/10.1/ise/verilog/hdp/nt/xilinxcorelib_ver/xilinxcorelib_ver.sdbl
+Completed static elaboration
+Fuse Memory Usage: 55176 Kb
+Fuse CPU Usage: 921 ms
+Compiling module glbl
+Compiling module BLKMEMDP_V6_3(c_addra_width=8,c_...
+Compiling module convertible_FIFO
+Compiling module single_packet_fifo(DATA_WIDTH=64...
+Compiling module BLKMEMDP_V6_3(c_addra_width=9,c_...
+Compiling module instr_mem_dp_GPU
+Compiling module control_unit_GPU
+Compiling module sign_extend_GPU
+Compiling module alu_64_GPU
+Compiling module bfloat16_ex0_prep
+Compiling module bfloat16_simd64_ex0_prep
+Compiling module bfloat16_ex1_align
+Compiling module bfloat16_simd64_ex1_align
+Compiling module lzc_8bit
+Compiling module bfloat16_ex2_norm
+Compiling module bfloat16_simd64_ex2_norm
+Compiling module GPU_CMT
+Compiling module BLKMEMDP_V6_3(c_addra_width=11,c...
+Compiling module instr_mem_dp
+Compiling module control_unit
+Compiling module alu_control
+Compiling module sign_extend
+Compiling module alu_64
+Compiling module cpu_CMT
+Compiling module network_processor(DATA_WIDTH=64,...
+Compiling module network_processor_full_tb
+Compiled 26 Verilog Units
+Built simulation executable network_processor_full_tb_isim_beh.exe
+Fuse Memory Usage: 59788 Kb
+Fuse CPU Usage: 1905 ms
