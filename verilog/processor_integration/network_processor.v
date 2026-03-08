@@ -41,7 +41,8 @@ module network_processor
 
     // --- Misc
     input                               clk,
-    input                               reset
+    input                               cpu_reset,
+	 input                               fifo_reset
   );
   
   wire [7:0] cpu_mem_addr;
@@ -65,7 +66,7 @@ module network_processor
     .in_rdy(in_rdy),
 
     .clk(clk),
-    .reset(reset),
+    .reset(fifo_reset),
 
     .cpu_addr(cpu_mem_addr),
     .cpu_in_data(cpu_mem_wr_data),
@@ -80,7 +81,7 @@ module network_processor
   
   cpu_CMT cpu_instance(
     .CLK(clk), 
-    .RSTB(reset),
+    .RSTB(~cpu_reset),
     .mem_addr(cpu_mem_addr),
     .mem_we(cpu_mem_we),
     .mem_en(cpu_mem_en),

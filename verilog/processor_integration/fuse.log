@@ -40,7 +40,7 @@ Restoring Verilog parse-tree xilinxcorelib_ver.BLKMEMDP_V6_3 from
 c:/xilinx/10.1/ise/verilog/hdp/nt/xilinxcorelib_ver/xilinxcorelib_ver.sdbl
 Completed static elaboration
 Fuse Memory Usage: 55176 Kb
-Fuse CPU Usage: 436 ms
+Fuse CPU Usage: 343 ms
 Compiling module glbl
 Compiling module BLKMEMDP_V6_3(c_addra_width=8,c_...
 Compiling module convertible_FIFO
@@ -57,4 +57,4 @@ Compiling module network_processor_full_tb
 Compiled 13 Verilog Units
 Built simulation executable network_processor_full_tb_isim_beh.exe
 Fuse Memory Usage: 59788 Kb
-Fuse CPU Usage: 827 ms
+Fuse CPU Usage: 718 ms
