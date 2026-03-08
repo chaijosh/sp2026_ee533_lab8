@@ -1,171 +1,135 @@
 `timescale 1ns / 1ps
-
-////////////////////////////////////////////////////////////////////////////////
-// Company:
-// Engineer:
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date:    01:42:11 03/07/2026 
+// Design Name: 
+// Module Name:    network_processor_full_tb 
+// Project Name: 
+// Target Devices: 
+// Tool versions: 
+// Description: 
 //
-// Create Date:   [Date]
-// Design Name:   network_processor
-// Module Name:   network_processor_full_tb
-// Project Name:  processor_integration
-// Target Device:
-// Tool versions:
-// Description:   Testbench for both CPU and FIFO functionality of the
-//                network_processor module.
+// Dependencies: 
 //
-// Dependencies:
-//
-// Revision:
+// Revision: 
 // Revision 0.01 - File Created
-// Additional Comments:
+// Additional Comments: 
 //
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
 module network_processor_full_tb;
+    localparam DATA_WIDTH       = 64;
+    localparam CTRL_WIDTH       = 8;
+    localparam FIFO_DEPTH_WORDS = 256;
+    integer i;
 
-  // Parameters
-  localparam DATA_WIDTH       = 64;
-  localparam CTRL_WIDTH       = 8;
-  localparam FIFO_DEPTH_WORDS = 256;
-  localparam CLK_PERIOD       = 200; // Using a faster clock for simulation
-  integer i;
+    // Inputs signals:
+    reg                         clk;
+    reg                         cpu_reset, fifo_reset;
+    reg                         memory_port_master;
+    reg                         out_rdy;
+    reg [DATA_WIDTH-1:0]        in_data;
+    reg [CTRL_WIDTH-1:0]        in_ctrl;
+    reg                         in_wr;
 
-  // Inputs to UUT
-  reg                         clk;
-  reg                         reset;
-  reg                         memory_port_master;
-  reg                         out_rdy;
-  reg [DATA_WIDTH-1:0]        in_data;
-  reg [CTRL_WIDTH-1:0]        in_ctrl;
-  reg                         in_wr;
+    // Outputs signals:
+    wire [DATA_WIDTH-1:0]       out_data;
+    wire [CTRL_WIDTH-1:0]       out_ctrl;
+    wire                        out_wr;
+    wire                        in_rdy;
 
-  // Outputs from UUT
-  wire [DATA_WIDTH-1:0]       out_data;
-  wire [CTRL_WIDTH-1:0]       out_ctrl;
-  wire                        out_wr;
-  wire                        in_rdy;
+    network_processor #(
+                        .DATA_WIDTH(DATA_WIDTH),
+                        .CTRL_WIDTH(CTRL_WIDTH),
+                        .FIFO_DEPTH_WORDS(FIFO_DEPTH_WORDS)
+                        ) uut (
+                              .memory_port_master(memory_port_master),
+                              .out_data(out_data),
+                              .out_ctrl(out_ctrl),
+                              .out_wr(out_wr),
+                              .out_rdy(out_rdy),
+                              .in_data(in_data),
+                              .in_ctrl(in_ctrl),
+                              .in_wr(in_wr),
+                              .in_rdy(in_rdy),
+                              .clk(clk),
+                              .cpu_reset(cpu_reset),
+                              .fifo_reset(fifo_reset)
+                              );
 
-  // Testbench internal variables
-  reg [DATA_WIDTH-1:0]        sent_packet_data[0:FIFO_DEPTH_WORDS-1];
-  reg [CTRL_WIDTH-1:0]        sent_packet_ctrl[0:FIFO_DEPTH_WORDS-1];
-  integer                     sent_word_count;
-  integer                     received_word_count;
-  integer                     errors;
-  reg [7:0]                   last_cpu_addr;
-  reg                         cpu_activity_detected;
+    always #100 clk = ~clk;
 
-  // Instantiate the Unit Under Test (UUT)
-  network_processor #(
-    .DATA_WIDTH(DATA_WIDTH),
-    .CTRL_WIDTH(CTRL_WIDTH),
-    .FIFO_DEPTH_WORDS(FIFO_DEPTH_WORDS)
-  ) uut (
-    .memory_port_master(memory_port_master),
-    .out_data(out_data),
-    .out_ctrl(out_ctrl),
-    .out_wr(out_wr),
-    .out_rdy(out_rdy),
-    .in_data(in_data),
-    .in_ctrl(in_ctrl),
-    .in_wr(in_wr),
-    .in_rdy(in_rdy),
-    .clk(clk),
-    .reset(reset)
-  );
+    // Helper task to send one word to the FIFO datapath
+    task send_word;
+        input [DATA_WIDTH-1:0] data;
+        input [CTRL_WIDTH-1:0] ctrl;
+        begin
+            wait(in_rdy); // wait until we are ready to take new input
+            @(posedge clk); // wait till next posedge
+            in_data <= data;
+            in_ctrl <= ctrl;
+            in_wr   <= 1'b1;
 
-  // Clock generator
-  always #(CLK_PERIOD/2) clk = ~clk;
+            @(posedge clk);
+            in_wr <= 1'b0;
+            in_data <= 64'b0;
+            in_ctrl <= 8'b0;
+        end
+    endtask
 
-  // Helper task to apply reset (active-low, consistent with RSTB)
-  task apply_reset;
-    begin
-      $display("[%0t] INFO: Applying reset (active-low).", $time);
-      reset <= 1'b0; // Assert reset
-      #(CLK_PERIOD * 5);
-      reset <= 1'b1; // De-assert reset
-      $display("[%0t] INFO: Reset released.", $time);
-      #(CLK_PERIOD);
+    initial begin
+        clk = 1'b0;
+        fifo_reset = 1'b0;
+        cpu_reset = 1'b1;
+        memory_port_master = 1'b0;
+        out_rdy = 1'b0;
+        in_data = 64'b0;
+        in_ctrl = 8'b0;
+        in_wr = 1'b0;
+
+        #1000
+        for (i = 0; i < 128; i = i + 1)
+            uut.cpu_instance.reg_file[i] = 64'd0;
+
+        // FIFO reset
+        fifo_reset = 1'b1;
+        #1000;
+        fifo_reset = 1'b0;
+        #200;
+
+        // First, we send 10 input packets to FIFO from network:
+
+        out_rdy <= 1'b0; // Keep output queue stalled
+        send_word(64'h00000000_000001F4, 8'h00);
+        send_word(64'hFFFFFFFF_FFFFFEA3, 8'h00);
+        send_word(64'hA3F19C2D_7B4E8A10, 8'h00);
+        send_word(64'h5E07D4B9_C8123FA6, 8'h00);
+        send_word(64'h9B2A6F01_3D7C55E8, 8'h00);
+        send_word(64'h1C4D8EAA_FF209B73, 8'h00);
+        send_word(64'hD0E5B317_6A9C42FD, 8'h00);
+        send_word(64'h7F8A1DCC_0045BE92, 8'h00);
+        send_word(64'h2843F6B1_E9DA107C, 8'h00);
+        send_word(64'hC6BD902E_1357AF48, 8'hFF);
+
+        // GPU stimulus
+        // port_master = 2
+        // gpu computation
+
+        // CPU de-assert reset to begin bubble sort on the received packets
+        cpu_reset = 0;
+        memory_port_master = 1'b1;
+        #1200000
+
+        // reset CPU and handover to network
+        cpu_reset = 1;
+        memory_port_master = 1'b0;
+        #400;
+
+        // Send packet to output queue
+        out_rdy = 1'b1;
+        #10000;
+      $finish;
     end
-  endtask
-
-  // Helper task to send one word to the FIFO datapath
-  task send_word;
-    input [DATA_WIDTH-1:0] data;
-    input [CTRL_WIDTH-1:0] ctrl;
-    begin
-      wait(in_rdy);
-      @(posedge clk);
-      in_data <= data;
-      in_ctrl <= ctrl;
-      in_wr   <= 1'b1;
-      
-      sent_packet_data[sent_word_count] = data;
-      sent_packet_ctrl[sent_word_count] = ctrl;
-      sent_word_count = sent_word_count + 1;
-      
-      @(posedge clk);
-      in_wr <= 1'b0;
-      in_data <= 64'bx;
-      in_ctrl <= 8'bx;
-    end
-  endtask
-
-  // Main test sequence
-  initial begin
-    // Initialize signals
-    clk = 1'b0;
-    reset = 1'b1;
-    memory_port_master = 1'b1;
-    out_rdy = 1'b0;
-    in_data = 64'bx;
-    in_ctrl = 8'bx;
-    in_wr = 1'b0;
-    errors = 0;
-    cpu_activity_detected = 1'b0;
-
-	 #1000
-	     $display("Initializing source registers...");
-	 for (i = 0; i < 128; i = i + 1) begin
-			uut.cpu_instance.reg_file[i] = 64'd0;
-		end
-	 reset = 0;
-	 #1200000
-
-    apply_reset();
-    // --- TEST 1: Basic packet send with output stalled ---
-    $display("\n--- TEST 1: Basic packet send with output stalled. ---");
-    sent_word_count = 0;
-    received_word_count = 0;
-    out_rdy <= 1'b0; // Keep downstream stalled
-
-    send_word(64'hAAAAAAAA_AAAAAAAA, 8'h00);
-    send_word(64'hBBBBBBBB_BBBBBBBB, 8'h00);
-    send_word(64'hCCCCCCCC_CCCCCCCC, 8'h01); // End of packet
-
-    $display("[%0t] INFO: Packet sent. FIFO should be full. Waiting 5 cycles.", $time);
-    
-    // --- Final Results ---
-    #(CLK_PERIOD * 5);
-    if (errors == 0) $display("\n--- ALL TESTS PASSED ---");
-    else $display("\n--- TEST FAILED with %0d errors ---", errors);
-    $finish;
-  end
-
-  // Verification and Monitoring Logic
-  always @(posedge clk) begin
-    if (reset && out_wr && out_rdy) begin
-      if (received_word_count < sent_word_count) begin
-        if (out_data !== sent_packet_data[received_word_count] || out_ctrl !== sent_packet_ctrl[received_word_count]) begin
-          $display("[%0t] MISMATCH! Word: %0d. Expected: D=%h,C=%h. Got: D=%h,C=%h",
-                 $time, received_word_count, sent_packet_data[received_word_count], sent_packet_ctrl[received_word_count], out_data, out_ctrl);
-          errors = errors + 1;
-        end else $display("[%0t] MATCH. Word: %0d. Data: %h, Ctrl: %h", $time, received_word_count, out_data, out_ctrl);
-        received_word_count = received_word_count + 1;
-      end else if (memory_port_master == 1'b0) begin
-        $display("[%0t] UNEXPECTED DATA! Received more words than sent.", $time);
-        errors = errors + 1;
-      end
-    end
-  end
-
 endmodule
