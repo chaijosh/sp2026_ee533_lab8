@@ -1,0 +1,207 @@
+/**********************************************************************/
+/*   ____  ____                                                       */
+/*  /   /\/   /                                                       */
+/* /___/  \  /                                                        */
+/* \   \   \/                                                         */
+/*  \   \        Copyright (c) 2003-2007 Xilinx, Inc.                 */
+/*  /   /        All Right Reserved.                                  */
+/* /---/   /\                                                         */
+/* \   \  /  \                                                        */
+/*  \___\/\___\                                                       */
+/**********************************************************************/
+
+/* This file is designed for use with ISim build 0x734844ce */
+
+#include "xsi.h"
+#include <memory.h>
+#ifdef __GNUC__
+#include <stdlib.h>
+#else
+#include <malloc.h>
+#define alloca _alloca
+#endif
+static unsigned int ng0[] = {0U, 0U};
+
+
+
+static void C61_0(char *t0)
+{
+    char *t1;
+    char *t2;
+    char *t3;
+    char *t4;
+    char *t5;
+    char *t6;
+    char *t7;
+    char *t8;
+
+LAB0:    t1 = (t0 + 4128U);
+    t2 = *((char **)t1);
+    if (t2 == 0)
+        goto LAB2;
+
+LAB3:    goto *t2;
+
+LAB2:    t2 = (t0 + 2464U);
+    t3 = *((char **)t2);
+    t2 = (t0 + 4744);
+    t4 = (t2 + 32U);
+    t5 = *((char **)t4);
+    t6 = (t5 + 40U);
+    t7 = *((char **)t6);
+    xsi_vlog_bit_copy(t7, 0, t3, 0, 64);
+    xsi_driver_vfirst_trans(t2, 0, 63);
+    t8 = (t0 + 4692);
+    *((int *)t8) = 1;
+
+LAB1:    return;
+}
+
+static void C62_1(char *t0)
+{
+    char *t1;
+    char *t2;
+    char *t3;
+    char *t4;
+    char *t5;
+    char *t6;
+    char *t7;
+    char *t8;
+
+LAB0:    t1 = (t0 + 4256U);
+    t2 = *((char **)t1);
+    if (t2 == 0)
+        goto LAB2;
+
+LAB3:    goto *t2;
+
+LAB2:    t2 = (t0 + 2464U);
+    t3 = *((char **)t2);
+    t2 = (t0 + 4780);
+    t4 = (t2 + 32U);
+    t5 = *((char **)t4);
+    t6 = (t5 + 40U);
+    t7 = *((char **)t6);
+    xsi_vlog_bit_copy(t7, 0, t3, 0, 64);
+    xsi_driver_vfirst_trans(t2, 0, 63);
+    t8 = (t0 + 4700);
+    *((int *)t8) = 1;
+
+LAB1:    return;
+}
+
+static void implSig1_execute(char *t0)
+{
+    char *t1;
+    char *t2;
+    char *t3;
+    char *t4;
+    char *t5;
+    char *t6;
+    char *t7;
+    char *t8;
+    unsigned int t9;
+    unsigned int t10;
+    char *t11;
+    unsigned int t12;
+    unsigned int t13;
+    unsigned int t14;
+    unsigned int t15;
+    unsigned int t16;
+    unsigned int t17;
+
+LAB0:    t1 = (t0 + 4384U);
+    t2 = *((char **)t1);
+    if (t2 == 0)
+        goto LAB2;
+
+LAB3:    goto *t2;
+
+LAB2:    t2 = ((char*)((ng0)));
+    t3 = (t0 + 4816);
+    t4 = (t3 + 32U);
+    t5 = *((char **)t4);
+    t6 = (t5 + 40U);
+    t7 = *((char **)t6);
+    t8 = (t7 + 4U);
+    t9 = 255U;
+    t10 = t9;
+    t11 = (t2 + 4U);
+    t12 = *((unsigned int *)t2);
+    t9 = (t9 & t12);
+    t13 = *((unsigned int *)t11);
+    t10 = (t10 & t13);
+    t14 = *((unsigned int *)t7);
+    *((unsigned int *)t7) = (t14 & 4294967040U);
+    t15 = *((unsigned int *)t7);
+    *((unsigned int *)t7) = (t15 | t9);
+    t16 = *((unsigned int *)t8);
+    *((unsigned int *)t8) = (t16 & 4294967040U);
+    t17 = *((unsigned int *)t8);
+    *((unsigned int *)t8) = (t17 | t10);
+    xsi_driver_vfirst_trans(t3, 0, 7);
+
+LAB1:    return;
+}
+
+static void implSig2_execute(char *t0)
+{
+    char *t1;
+    char *t2;
+    char *t3;
+    char *t4;
+    char *t5;
+    char *t6;
+    char *t7;
+    char *t8;
+    unsigned int t9;
+    unsigned int t10;
+    char *t11;
+    unsigned int t12;
+    unsigned int t13;
+    unsigned int t14;
+    unsigned int t15;
+    unsigned int t16;
+    unsigned int t17;
+
+LAB0:    t1 = (t0 + 4512U);
+    t2 = *((char **)t1);
+    if (t2 == 0)
+        goto LAB2;
+
+LAB3:    goto *t2;
+
+LAB2:    t2 = ((char*)((ng0)));
+    t3 = (t0 + 4852);
+    t4 = (t3 + 32U);
+    t5 = *((char **)t4);
+    t6 = (t5 + 40U);
+    t7 = *((char **)t6);
+    t8 = (t7 + 4U);
+    t9 = 255U;
+    t10 = t9;
+    t11 = (t2 + 4U);
+    t12 = *((unsigned int *)t2);
+    t9 = (t9 & t12);
+    t13 = *((unsigned int *)t11);
+    t10 = (t10 & t13);
+    t14 = *((unsigned int *)t7);
+    *((unsigned int *)t7) = (t14 & 4294967040U);
+    t15 = *((unsigned int *)t7);
+    *((unsigned int *)t7) = (t15 | t9);
+    t16 = *((unsigned int *)t8);
+    *((unsigned int *)t8) = (t16 & 4294967040U);
+    t17 = *((unsigned int *)t8);
+    *((unsigned int *)t8) = (t17 | t10);
+    xsi_driver_vfirst_trans(t3, 0, 7);
+
+LAB1:    return;
+}
+
+
+extern void work_m_00000000001123174925_4152198458_init()
+{
+	static char *pe[] = {(void *)C61_0,(void *)C62_1,(void *)implSig1_execute,(void *)implSig2_execute};
+	xsi_register_didat("work_m_00000000001123174925_4152198458", "isim/_tmp/work/m_00000000001123174925_4152198458.didat");
+	xsi_register_executes(pe);
+}
