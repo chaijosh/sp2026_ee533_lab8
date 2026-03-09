@@ -20,7 +20,7 @@ module single_packet_fifo
     parameter FIFO_DEPTH_WORDS = 256 // 256 * 8 bytes = 2KB buffer
   )
   (
-    input [1:0] 								 port_master,
+    input [1:0] 						    port_master,
     // --- Data path interface (output)
     output reg [DATA_WIDTH-1:0]         out_data,
     output reg [CTRL_WIDTH-1:0]         out_ctrl,
@@ -55,6 +55,8 @@ module single_packet_fifo
 
 
     // --- Misc
+	 output reg [1:0] 						 state,
+	 input  										 freeze,
     input                               clk,
     input                               reset
   );
@@ -67,7 +69,7 @@ module single_packet_fifo
   localparam STATE_FULL      = 2'b10; // Packet stored, waiting for output to be ready
   localparam STATE_SENDING   = 2'b11; // Actively sending the packet
 
-  reg [1:0] state, next_state;
+  reg [1:0] next_state;
 
   // Head (rd_ptr) and Tail (wr_ptr) pointers
   reg [ADDR_WIDTH-1:0] wr_ptr, rd_ptr;
@@ -123,7 +125,7 @@ module single_packet_fifo
     in_rdy     = 1'b0;
     out_data   = ram_dout[DATA_WIDTH-1:0];
     out_ctrl   = ram_dout[DATA_WIDTH+CTRL_WIDTH-1:DATA_WIDTH];
-
+	 
     case (state)
       STATE_IDLE: begin
         in_rdy = 1'b1; 
@@ -149,7 +151,7 @@ module single_packet_fifo
 
       STATE_FULL: begin
         in_rdy = 1'b0; // FIFO is full, stall the input
-        if (out_rdy) begin
+        if (out_rdy && freeze) begin
           // Downstream is ready, so we can start sending
           next_state = STATE_SENDING;
         end

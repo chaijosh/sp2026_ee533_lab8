@@ -30,8 +30,8 @@
 // supported by Xilinx, Mentor Graphics and Synplicity synthesis
 // tools. Ensure they are correct for your synthesis tool(s).
 
-// You must compile the wrapper file instr_mem_dp.v when simulating
-// the core, instr_mem_dp. When compiling the wrapper file, be sure to
+// You must compile the wrapper file instr_mem_dp_GPU.v when simulating
+// the core, instr_mem_dp_GPU. When compiling the wrapper file, be sure to
 // reference the XilinxCoreLib Verilog simulation library. For detailed
 // instructions, please refer to the "CORE Generator Help".
 
@@ -70,7 +70,7 @@ input web;
 		.c_depth_a(512),
 		.c_depth_b(512),
 		.c_enable_rlocs(0),
-		.c_has_default_data(0),
+		.c_has_default_data(1),
 		.c_has_dina(0),
 		.c_has_dinb(1),
 		.c_has_douta(1),
@@ -89,7 +89,7 @@ input web;
 		.c_has_wea(0),
 		.c_has_web(1),
 		.c_limit_data_pitch(18),
-		.c_mem_init_file("instr_mem_dp.mif"),
+		.c_mem_init_file("mif_file_16_1"),
 		.c_pipe_stages_a(0),
 		.c_pipe_stages_b(0),
 		.c_reg_inputsa(0),
@@ -143,7 +143,7 @@ input web;
 
 // XST black box declaration
 // box_type "black_box"
-// synthesis attribute box_type of instr_mem_dp is "black_box"
+// synthesis attribute box_type of instr_mem_dp_GPU is "black_box"
 
 endmodule
 

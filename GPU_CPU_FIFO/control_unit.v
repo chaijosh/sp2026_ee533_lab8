@@ -30,17 +30,23 @@ module control_unit (
     output       MemRead,
     output       MemWrite,
     output       Beq,
-	 output       Bne,
+	output       Bne,
     output       ALUOp1,
-    output       ALUOp0
+    output       ALUOp0,
+    output       cpu_done,
+    output       gpu_active,
+    output       GPU_wait_instr
 );
 
     wire RType             = (opcode == 6'b000000);
     wire LW                = (opcode == 6'b100011);
     wire SW                = (opcode == 6'b101011);
     wire Branch_ifEqual    = (opcode == 6'b000100);
-	 wire Branch_ifNotEqual = (opcode == 6'b000101);
+	wire Branch_ifNotEqual = (opcode == 6'b000101);
     wire AddI              = (opcode == 6'b001000);
+    wire cpu_is_done       = (opcode == 6'b111111);
+    wire gpu_start         = (opcode == 6'b111110);
+    wire gpu_wait          = (opcode == 6'b111101);
     
     assign RegDst   = RType; // 1 for Rtype
     assign ALUSrc   = LW | SW | AddI; // 1 for lw/sw/addi
@@ -49,8 +55,11 @@ module control_unit (
     assign MemRead  = LW; // 1 for lw
     assign MemWrite = SW; // 1 for sw
     assign Beq      = Branch_ifEqual; // 1 for beq
-	 assign Bne      = Branch_ifNotEqual; // 1 for bne
+	assign Bne      = Branch_ifNotEqual; // 1 for bne
     assign ALUOp1   = RType; // R-type ALU operation
     assign ALUOp0   = Branch_ifEqual | Branch_ifNotEqual; // BEQ ALU operation (subtract)
+    assign cpu_done = cpu_is_done;
+    assign gpu_active = gpu_start;
+    assign GPU_wait_instr = gpu_wait;
 
 endmodule

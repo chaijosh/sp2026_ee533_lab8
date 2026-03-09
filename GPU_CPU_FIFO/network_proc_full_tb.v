@@ -69,7 +69,6 @@ module network_proc_full_tb;
     .CTRL_WIDTH(CTRL_WIDTH),
     .FIFO_DEPTH_WORDS(FIFO_DEPTH_WORDS)
   ) uut (
-    .memory_port_master(memory_port_master),
     .out_data(out_data),
     .out_ctrl(out_ctrl),
     .out_wr(out_wr),
@@ -136,7 +135,7 @@ module network_proc_full_tb;
     errors = 0;
 	 reset_gpu = 1'b0;
 	 reset_cpu = 1'b0;
-    memory_port_master = 2'b00;
+    //memory_port_master = 2'b00;
     out_rdy <= 1'b0; // Keep downstream stalled
     cpu_activity_detected = 1'b0;
 	 debug_enable = 1;
@@ -145,37 +144,27 @@ module network_proc_full_tb;
 	 apply_reset();
     sent_word_count = 0;
     received_word_count = 0;
-    #25; 
-	 send_word(64'hA3F19C2D_7B4E8A10, 8'h00);
-    send_word(64'h1C4D8EAA_FF209B73, 8'h00);
-	 send_word(64'h5E07D4B9_C8123FA6, 8'h00);
-    send_word(64'h00000000_000001F4, 8'h00);
-    send_word(64'h9B2A6F01_3D7C55E8, 8'h00);
-    send_word(64'hFFFFFFFF_FFFFFEA3, 8'h00);
-    send_word(64'hD0E5B317_6A9C42FD, 8'h00);
-    send_word(64'h7F8A1DCC_0045BE92, 8'h00);
-    send_word(64'h2843F6B1_E9DA107C, 8'h00);
-    send_word(64'hC6BD902E_1357AF48, 8'hFF);
-		#25; 
- // ========================================== INS_MEM_Write
-	 memory_port_master = 2'b10;
+    
 	  debug_instr_write_en = 1;
 
 	  // Load Vectors from Data Memory to Registers
 	  debug_pc = 9'd0;  debug_instr_in = 32'h00000000; @(negedge clk);
-	  debug_pc = 9'd1;  debug_instr_in = 32'h8C010001; @(negedge clk); // LW $1, 1($0) -> Load Vec 1
-	  debug_pc = 9'd2;  debug_instr_in = 32'h8C020002; @(negedge clk); // LW $2, 2($0) -> Load Vec 2
-	  debug_pc = 9'd3;  debug_instr_in = 32'h8C060003; @(negedge clk); // LW $6, 3($0) -> Load Bias to $6
+	  debug_pc = 9'd1;  debug_instr_in = 32'hFC000000; @(negedge clk); //HALT GPU_done goes high
+	  debug_pc = 9'd2;  debug_instr_in = 32'h00000000; @(negedge clk);
+	  debug_pc = 9'd3;  debug_instr_in = 32'h00000000; @(negedge clk);
+	  debug_pc = 9'd4;  debug_instr_in = 32'h8C010001; @(negedge clk); // LW $1, 1($0) -> Load Vec 1
+	  debug_pc = 9'd5;  debug_instr_in = 32'h8C020002; @(negedge clk); // LW $2, 2($0) -> Load Vec 2
+	  debug_pc = 9'd6;  debug_instr_in = 32'h8C060003; @(negedge clk); // LW $6, 3($0) -> Load Bias to $6
 	  
 	  // Pipeline Data Hazard NOPs (Wait 5 cycles for LW to reach Writeback stage)
-	  debug_pc = 9'd4;  debug_instr_in = 32'h00000000; @(negedge clk);
-	  debug_pc = 9'd5;  debug_instr_in = 32'h00000000; @(negedge clk);
-	  debug_pc = 9'd6;  debug_instr_in = 32'h00000000; @(negedge clk);
 	  debug_pc = 9'd7;  debug_instr_in = 32'h00000000; @(negedge clk);
+	  debug_pc = 9'd8;  debug_instr_in = 32'h00000000; @(negedge clk);
+	  debug_pc = 9'd9;  debug_instr_in = 32'h00000000; @(negedge clk);
+	  debug_pc = 9'd10;  debug_instr_in = 32'h00000000; @(negedge clk);
 		 
 /*	  // ADDFP Operation
-	  debug_pc = 9'd8;  debug_instr_in = 32'h10221800; @(negedge clk); // ADDFP $3, $1, $2
-	  debug_pc = 9'd9;  debug_instr_in = 32'h00000000; @(negedge clk);
+	  debug_pc = 9'd8;  debug_instr_in = 32'h10221800; @(negedge clk); // ADDFP $3, $1, $2 0001 00_00 001_0 0010_ 0001 1_000 0000 0000 
+	  debug_pc = 9'd9;  debug_instr_in = 32'h00000000; @(negedge clk);                     
 	  debug_pc = 9'd10; debug_instr_in = 32'h00000000; @(negedge clk);
 	  debug_pc = 9'd11; debug_instr_in = 32'h00000000; @(negedge clk);
 	  
@@ -195,21 +184,22 @@ module network_proc_full_tb;
 
 	  // ReLU Operation
 	  debug_pc = 9'd22; debug_instr_in = 32'h18E04000; @(negedge clk); // RELU $8, $7 -> $8 = MAX(0, $7)*/
-	  debug_pc = 9'd08; debug_instr_in = 32'h00000000; @(negedge clk);
-	  debug_pc = 9'd09; debug_instr_in = 32'h14C21800; @(negedge clk); // MULTFP $3, $6, $2 0001 0100 1100 0010 0001 1000 
+	  debug_pc = 9'd11; debug_instr_in = 32'h00000000; @(negedge clk);
+	  debug_pc = 9'd12; debug_instr_in = 32'h14221800; @(negedge clk); // MULTFP $3, $1, $2 0001 01_00 001_0 0010_ 0001 1_000 
 	  // Pipeline Data Hazard NOPs (Wait 5 cycles for MULT to reach Writeback stage)
 	  
-	  debug_pc = 9'd10; debug_instr_in = 32'h00000000; @(negedge clk);
-	  debug_pc = 9'd11; debug_instr_in = 32'h00000000; @(negedge clk);
-	  debug_pc = 9'd12; debug_instr_in = 32'h00000000; @(negedge clk);
 	  debug_pc = 9'd13; debug_instr_in = 32'h00000000; @(negedge clk);
 	  debug_pc = 9'd14; debug_instr_in = 32'h00000000; @(negedge clk);
-	  // Store Results back to Memory
-	  debug_pc = 9'd15; debug_instr_in = 32'hAC030005; @(negedge clk); // SW $3, 5($0) -> Store ADDFP
+	  debug_pc = 9'd15; debug_instr_in = 32'h00000000; @(negedge clk);
 	  debug_pc = 9'd16; debug_instr_in = 32'h00000000; @(negedge clk);
 	  debug_pc = 9'd17; debug_instr_in = 32'h00000000; @(negedge clk);
+	  // Store Result back to Memory
+	  debug_pc = 9'd18; debug_instr_in = 32'hAC030005; @(negedge clk); // SW $3, 5($0) -> Store ADDFP
+	  debug_pc = 9'd19; debug_instr_in = 32'h240001ED; @(negedge clk); //0010 0100 0000 0000 0000 000X XXXX XXXX  1 1110 1110
+	  debug_pc = 9'd20; debug_instr_in = 32'h00000000; @(negedge clk);
+	  debug_pc = 9'd21; debug_instr_in = 32'h00000000; @(negedge clk);
 	  
-	  debug_pc = 9'd18; debug_instr_in = 32'h00000000; @(negedge clk); // Infinite NOP buffer
+	  debug_pc = 9'd22; debug_instr_in = 32'h00000000; @(negedge clk); // Infinite NOP buffer
 	  
 	  debug_instr_write_en = 0; // Disable instruction write
 	  debug_enable = 0; // Release debug control so CPU can run memory
@@ -224,24 +214,39 @@ module network_proc_full_tb;
 	  for (i = 0; i < 128; i = i + 1) begin
 	 		uut.cpu_instance.reg_file[i] = 64'd0;
 		end
+		#25; 
+	 send_word(64'h00000000_0000000A, 8'h00);
+    send_word(64'h00000000_00004100, 8'h00);
+	 send_word(64'h00000000_00004110, 8'h00);
+    send_word(64'h00000000_00000007, 8'h00);
+    send_word(64'h00000000_00000006, 8'h00);
+    send_word(64'h00000000_00000005, 8'h00);
+    send_word(64'h00000000_00000004, 8'h00);
+    send_word(64'h00000000_00000003, 8'h00);
+    send_word(64'h00000000_00000002, 8'h00);
+    send_word(64'h00000000_00000001, 8'hFF);
+		#25; 
+	 out_rdy <= 1'b1;
+ // ========================================== INS_MEM_Write
+	 //memory_port_master = 2'b10;
 	 reset_gpu = 1'b1;
+	 reset_cpu = 1'b1;
+
 	 #5000;
     
-	 reset_gpu = 1'b0;
+	 //reset_gpu = 1'b0;
     sent_word_count = 0;
     received_word_count = 0;
-	 #200
-	 reset_cpu = 1;
-	 memory_port_master = 2'b01;
+	 //reset_cpu = 1;
+	 //memory_port_master = 2'b01;
 	 #150000
 	 
-	 reset_cpu = 0;
-	 memory_port_master = 2'b00;
+	 //reset_cpu = 0;
+	 //memory_port_master = 2'b00;
 	 
 	 #200;
-	 out_rdy = 1'b1;
     #5000;
-    $finish;
+    $stop;
   end
 
 endmodule

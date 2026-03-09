@@ -1,7 +1,4 @@
 run 1000 ns
+run 100 ns
 run 100 us
-run 100 us
-run 100 us
-run 100 us
-run 100 us
-run 100 us
+run 1100 us

@@ -26,7 +26,7 @@ module network_processor
     parameter FIFO_DEPTH_WORDS = 256
 	 )
 	 (
-	 input [1:0]								 memory_port_master,
+	 //output [1:0]								 memory_port_master,
     // --- Data path interface (output)
     output wire [DATA_WIDTH-1:0]        out_data,
     output wire [CTRL_WIDTH-1:0]        out_ctrl,
@@ -43,17 +43,24 @@ module network_processor
 	 input [8:0] debug_pc, input debug_enable, input [31:0] debug_instr_in, input debug_instr_write_en, output [31:0] debug_instr_out,output [8:0]  PC_END,
 	 
     // --- Misc
+    // --- Misc
     input                               clk,
     input                               reset_cpu,
 	 input										 reset_gpu,
-	 input                               fifo_reset
+	 input                               fifo_reset 
 	 
   );
+  wire GPU_done;
+  wire CPU_done;
+  wire gpu_start;
+  wire [1:0] w_memory_port_master;
+  reg [1:0] mem_port_master;
+  wire [1:0] state;
   wire [63:0] CG_mem_rd_data;
   wire [7:0] cpu_mem_addr;
   wire cpu_mem_we,cpu_mem_en;
   wire [63:0] cpu_mem_wr_data, cpu_mem_rd_data;
-  
+  wire fifo_freeze;
   wire [7:0] gpu_mem_addr;
   wire gpu_mem_we,gpu_mem_en;
   wire [63:0] gpu_mem_wr_data, gpu_mem_rd_data;
@@ -61,12 +68,27 @@ module network_processor
   assign cpu_mem_rd_data = CG_mem_rd_data;
   assign gpu_mem_rd_data = CG_mem_rd_data;
   
-  single_packet_fifo #(
+  assign fifo_freeze = CPU_done;
+  
+  always @(posedge CPU_done or posedge GPU_done or posedge gpu_start or state) begin
+		if(state != 2'b10|| CPU_done)
+			mem_port_master = 2'b00;
+		else if(state == 2'b10) begin
+			if (gpu_start)
+				mem_port_master = 2'b10;
+			else if(GPU_done)
+				mem_port_master = 2'b01;
+		end
+  end
+  
+  assign w_memory_port_master = mem_port_master;
+  
+  single_packet_fifo #( 
     .DATA_WIDTH(DATA_WIDTH),
     .CTRL_WIDTH(CTRL_WIDTH),
     .FIFO_DEPTH_WORDS(FIFO_DEPTH_WORDS)
   ) fifo_instance(
-	 .port_master(memory_port_master),
+	 .port_master(w_memory_port_master),
     .out_data(out_data),
     .out_ctrl(out_ctrl),
     .out_wr(out_wr),
@@ -76,7 +98,8 @@ module network_processor
     .in_ctrl(in_ctrl),
     .in_wr(in_wr),
     .in_rdy(in_rdy),
-
+    .state(state),
+	 .freeze(fifo_freeze),
     .clk(clk),
     .reset(fifo_reset),
 
@@ -100,6 +123,7 @@ module network_processor
   GPU_CMT gpu_instance(
     .CLK(clk), 
     .RSTB(reset_gpu),
+	 .gpu_begin(gpu_start),
 	 .debug_pc(debug_pc),
     .debug_enable(debug_enable),
     .debug_instr_in(debug_instr_in),
@@ -110,7 +134,8 @@ module network_processor
     .mem_en(gpu_mem_en),
     .mem_wr_data(gpu_mem_wr_data),
     .mem_rd_data(gpu_mem_rd_data),
-	 .PC_END(PC_END)
+	 .PC_END(PC_END),
+	 .gpu_done(GPU_done)
     );
 	
 	  cpu_CMT cpu_instance(
@@ -120,7 +145,10 @@ module network_processor
     .mem_we(cpu_mem_we),
     .mem_en(cpu_mem_en),
     .mem_wr_data(cpu_mem_wr_data),
-    .mem_rd_data(cpu_mem_rd_data)
+    .mem_rd_data(cpu_mem_rd_data),
+	 .CPU_done(CPU_done),
+	 .GPU_active(gpu_start),
+	 .GPU_done(GPU_done)
     );
 
 

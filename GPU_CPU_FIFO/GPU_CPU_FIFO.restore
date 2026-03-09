@@ -846,8 +846,8 @@ proc restore { { project_dir "" } } {
       "convertible_FIFO.v" 
       "convertible_FIFO_flist.txt" 
       "cpu_CMT.v" 
-      "instr_mem_dp.v" 
-      "instr_mem_dp_GPU.v" 
+      "instr_mem_dp.xco" 
+      "instr_mem_dp_GPU.xco" 
       "instr_mem_dp_flist.txt" 
       "network_proc_full_tb.v" 
       "network_processor.v" 
@@ -860,7 +860,21 @@ proc restore { { project_dir "" } } {
     AddUserFiles $iProjHelper $user_files
   } "A problem occured while restoring user files."
 
-  set imported_files {}
+  set imported_files { 
+      "instr_mem_dp.asy" 
+      "instr_mem_dp.ngc" 
+      "instr_mem_dp.sym" 
+      "instr_mem_dp.v" 
+      "instr_mem_dp.veo" 
+      "instr_mem_dp.vhd" 
+      "instr_mem_dp.vho" 
+      "instr_mem_dp_GPU.asy" 
+      "instr_mem_dp_GPU.ngc" 
+      "instr_mem_dp_GPU.sym" 
+      "instr_mem_dp_GPU.v" 
+      "instr_mem_dp_GPU.veo" 
+      "instr_mem_dp_GPU.vhd" 
+      "instr_mem_dp_GPU.vho"}
 
   set origination 2
 

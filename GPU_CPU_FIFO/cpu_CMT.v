@@ -1,13 +1,16 @@
 `timescale 1ns / 1ps
 
-module cpu_CMT (CLK,RSTB,mem_addr,mem_we,mem_en,mem_wr_data,mem_rd_data);
+module cpu_CMT (CLK,RSTB,mem_addr,mem_we,mem_en,mem_wr_data,mem_rd_data, CPU_done, GPU_active, GPU_done);
 input CLK,RSTB;
 output [7:0] mem_addr;
 output mem_we,mem_en;
 output [63:0] mem_wr_data;
 input [63:0] mem_rd_data;
+input GPU_done;
+output CPU_done;
+output GPU_active;
 
-
+wire stall;
 // =============================
 // IF stage signals
 // =============================
@@ -22,7 +25,7 @@ reg [1:0] IF_threadID;
 // ID stage signals
 // =============================
 // reg STALL; // Removed stalling mechanism
-wire w_RegDst, w_ALUSrc, w_MemtoReg, w_RegWrite, w_MemRead, w_MemWrite, w_Branch_ifEqual, w_Branch_ifNotEqual;
+wire w_RegDst, w_ALUSrc, w_MemtoReg, w_RegWrite, w_MemRead, w_MemWrite, w_Branch_ifEqual, w_Branch_ifNotEqual, w_GPU_wait_instr;
 wire w_ALUOp1, w_ALUOp0;
 reg ID_ALUSrc, ID_MemtoReg, ID_RegWrite, ID_MemRead, ID_MemWrite, ID_Branch_ifEqual, ID_Branch_ifNotEqual;
 reg [1:0] ID_ALUOp;
@@ -32,7 +35,11 @@ reg [15:0] ID_imm;
 reg [31:0] ID_INSTR;
 reg [63:0] reg_file [0:127];
 reg [8:0] ID_PC_OUT;
+reg ID_GPU_wait;
 reg [1:0] ID_threadID;
+
+wire cpu_is_done;
+assign CPU_done = cpu_is_done;
 
 // Combinational register file read
 wire [63:0] ID_XD_wire, ID_Yd_wire;
@@ -139,7 +146,10 @@ control_unit main_control (
     .Beq(w_Branch_ifEqual),
 	 .Bne(w_Branch_ifNotEqual),
     .ALUOp1(w_ALUOp1),
-    .ALUOp0(w_ALUOp0)
+    .ALUOp0(w_ALUOp0),
+    .cpu_done(cpu_is_done),
+    .gpu_active(GPU_active),
+    .GPU_wait_instr(w_GPU_wait_instr)
 );
 
 // =============================
@@ -187,6 +197,8 @@ alu_64 theALU (
 assign Br1 = (EX_Branch_ifEqual && w_alu_zero) || (EX_Branch_ifNotEqual && !w_alu_zero);
 assign BTA = EX_PC_OUT + EX_imm_extended[8:0] + 1;
 
+assign stall = ID_GPU_wait && !GPU_done;
+
 // =============================
 // Sequential Logic
 // =============================
@@ -199,6 +211,7 @@ begin
 	 
     ID_ALUSrc <= 0; ID_MemtoReg <= 0; ID_RegWrite <= 0;
     ID_MemRead <= 0; ID_MemWrite <= 0; ID_Branch_ifEqual <= 0; ID_Branch_ifNotEqual <= 0;
+    ID_GPU_wait <= 0;
     ID_ALUOp <= 0; ID_INSTR <= 0;
 
     EX_ALUSrc <= 0; EX_MemtoReg <= 0; EX_RegWrite <= 0;
@@ -214,44 +227,6 @@ begin
 end
 else
 begin
-    // =============================
-    // IF stage (PC update)
-    // =============================
-    if (Br1) // Use Br1 as the condition
-        PC_OUT[EX_threadID] <= BTA; // BTA is the target address
-
-    PC_OUT[threadID] <= PC_OUT[threadID] + 1;
-	 threadID <= threadID+1;
-	 IF_PC_OUT <= PC_OUT[threadID];
-	 IF_threadID <= threadID;
-
-    // =============================
-    // ID stage
-    // =============================
-    // ID register file inputs are directly given the instruction memory output
-    // because of the synchronous read delay
-    ID_Rs <= instr_mem_douta[25:21];
-    ID_Rt <= instr_mem_douta[20:16];
-    ID_Rd <= w_RegDst ? instr_mem_douta[15:11] :
-                            instr_mem_douta[20:16];
-    ID_imm <= instr_mem_douta[15:0];
-    ID_funct <= instr_mem_douta[3:0];
-
-    // Pipelining produced signals
-    ID_ALUSrc         <= w_ALUSrc;
-    ID_MemtoReg       <= w_MemtoReg;
-    ID_RegWrite       <= w_RegWrite;
-    ID_MemRead        <= w_MemRead;
-    ID_MemWrite       <= w_MemWrite;
-    ID_Branch_ifEqual <= w_Branch_ifEqual;
-	 ID_Branch_ifNotEqual <= w_Branch_ifNotEqual;
-    ID_ALUOp          <= {w_ALUOp1, w_ALUOp0};
-    ID_INSTR          <= instr_mem_douta;
-	 
-	 // PC pipelined to ID:
-	 ID_PC_OUT <= IF_PC_OUT;
-	 ID_threadID <= IF_threadID;
-
     // =============================
     // Writeback register file update logic
     // =============================
@@ -281,30 +256,84 @@ begin
     MEM_INSTR    <= EX_INSTR;
 	 MEM_threadID <= EX_threadID;
 
-    // =============================
-    // EX pipeline registers
-    // =============================
-    EX_XD <= ID_XD_wire;
-    EX_Yd <= ID_Yd_wire;
-    EX_Rs <= ID_Rs;
-    EX_Rt <= ID_Rt;
-    EX_Rd <= ID_Rd;
-    EX_imm <= ID_imm;
-    EX_funct <= ID_funct;
+    if (stall) begin
+        // Stall detected. Freeze PC and IF/ID stage, and inject NOP into EX stage.
+        // EX pipeline registers are loaded with NOP
+        EX_ALUSrc   <= 1'b0;
+        EX_MemtoReg <= 1'b0;
+        EX_RegWrite <= 1'b0;
+        EX_MemRead  <= 1'b0;
+        EX_MemWrite <= 1'b0;
+        EX_Branch_ifEqual   <= 1'b0;
+        EX_Branch_ifNotEqual   <= 1'b0;
+        EX_ALUOp    <= 2'b00;
+        EX_INSTR    <= 32'h00000000; // NOP instruction
+        EX_XD <= 64'd0;
+        EX_Yd <= 64'd0;
+        EX_Rs <= 5'd0;
+        EX_Rt <= 5'd0;
+        EX_Rd <= 5'd0;
+        EX_imm <= 16'd0;
+        EX_funct <= 4'd0;
+        EX_PC_OUT <= 9'd0;
+        EX_threadID <= 2'd0;
+    end else begin
+        // No stall, pipeline proceeds normally.
+        // =============================
+        // IF stage (PC update)
+        // =============================
+        if (Br1) // Use Br1 as the condition
+            PC_OUT[EX_threadID] <= BTA; // BTA is the target address
+        
+        PC_OUT[threadID] <= PC_OUT[threadID] + 1;
+        threadID <= threadID+1;
+        IF_PC_OUT <= PC_OUT[threadID];
+        IF_threadID <= threadID;
 
-    EX_ALUSrc   <= ID_ALUSrc;
-    EX_MemtoReg <= ID_MemtoReg;
-    EX_RegWrite <= ID_RegWrite;
-    EX_MemRead  <= ID_MemRead;
-    EX_MemWrite <= ID_MemWrite;
-    EX_Branch_ifEqual   <= ID_Branch_ifEqual;
-	 EX_Branch_ifNotEqual   <= ID_Branch_ifNotEqual;
-    EX_ALUOp    <= ID_ALUOp;
-    EX_INSTR    <= ID_INSTR;
-	 
-	 EX_PC_OUT <= ID_PC_OUT;
-	 EX_threadID <= ID_threadID;
+        // =============================
+        // ID stage
+        // =============================
+        ID_Rs <= instr_mem_douta[25:21];
+        ID_Rt <= instr_mem_douta[20:16];
+        ID_Rd <= w_RegDst ? instr_mem_douta[15:11] :
+                                instr_mem_douta[20:16];
+        ID_imm <= instr_mem_douta[15:0];
+        ID_funct <= instr_mem_douta[3:0];
+        ID_ALUSrc         <= w_ALUSrc;
+        ID_MemtoReg       <= w_MemtoReg;
+        ID_RegWrite       <= w_RegWrite;
+        ID_MemRead        <= w_MemRead;
+        ID_MemWrite       <= w_MemWrite;
+        ID_Branch_ifEqual <= w_Branch_ifEqual;
+        ID_Branch_ifNotEqual <= w_Branch_ifNotEqual;
+        ID_ALUOp          <= {w_ALUOp1, w_ALUOp0};
+        ID_INSTR          <= instr_mem_douta;
+        ID_GPU_wait       <= w_GPU_wait_instr;
+        ID_PC_OUT <= IF_PC_OUT;
+        ID_threadID <= IF_threadID;
 
+        // =============================
+        // EX pipeline registers
+        // =============================
+        EX_XD <= ID_XD_wire;
+        EX_Yd <= ID_Yd_wire;
+        EX_Rs <= ID_Rs;
+        EX_Rt <= ID_Rt;
+        EX_Rd <= ID_Rd;
+        EX_imm <= ID_imm;
+        EX_funct <= ID_funct;
+        EX_ALUSrc   <= ID_ALUSrc;
+        EX_MemtoReg <= ID_MemtoReg;
+        EX_RegWrite <= ID_RegWrite;
+        EX_MemRead  <= ID_MemRead;
+        EX_MemWrite <= ID_MemWrite;
+        EX_Branch_ifEqual   <= ID_Branch_ifEqual;
+        EX_Branch_ifNotEqual   <= ID_Branch_ifNotEqual;
+        EX_ALUOp    <= ID_ALUOp;
+        EX_INSTR    <= ID_INSTR;
+        EX_PC_OUT <= ID_PC_OUT;
+        EX_threadID <= ID_threadID;
+    end
 end
 end
 
