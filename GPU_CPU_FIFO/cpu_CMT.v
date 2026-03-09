@@ -1,6 +1,22 @@
 `timescale 1ns / 1ps
 
-module cpu_CMT (CLK,RSTB,mem_addr,mem_we,mem_en,mem_wr_data,mem_rd_data, CPU_done, GPU_active, GPU_done);
+module cpu_CMT (CLK,
+                RSTB,
+                mem_addr,
+                mem_we,
+                mem_en,
+                mem_wr_data,
+                mem_rd_data,
+                debug_enable,
+                debug_instr_in,
+                debug_instr_write_en,
+                debug_pc,
+                debug_instr_out,
+                PC_END,
+                CPU_done,
+                GPU_active,
+                GPU_done);
+
 input CLK,RSTB;
 output [7:0] mem_addr;
 output mem_we,mem_en;
@@ -9,6 +25,17 @@ input [63:0] mem_rd_data;
 input GPU_done;
 output CPU_done;
 output GPU_active;
+
+// =============================
+// Debugging signals
+// =============================
+input debug_enable;               // Debug Mode Enable
+input [31:0] debug_instr_in;      // Port B Instr In
+input debug_instr_write_en;       // Port B Instr WE
+input [8:0] debug_pc;             // Port B Instr Addr
+output [31:0] debug_instr_out;     // Port B Instr Out
+output [10:0] PC_END;         // Port A PC (CPU Execution)
+
 
 wire stall;
 // =============================
@@ -47,9 +74,9 @@ wire [63:0] ID_XD_wire, ID_Yd_wire;
 // =============================
 // EX stage signals
 // =============================
-wire [63:0] EX_operand_A;
-wire [63:0] EX_operand_B;
-wire [63:0] w_alu_result;
+wire [31:0] EX_operand_A;
+wire [31:0] EX_operand_B;
+wire [31:0] w_alu_result;
 wire w_alu_zero;
 reg EX_ALUSrc, EX_MemtoReg, EX_RegWrite, EX_MemRead, EX_MemWrite, EX_Branch_ifEqual, EX_Branch_ifNotEqual;
 reg [1:0] EX_ALUOp;
@@ -99,12 +126,12 @@ instr_mem_dp ICache (
     .clka(CLK),
     .douta(instr_mem_douta),
     .ena(1'b1),
-    .addrb(11'b0),
-    .clkb(1'b0),
-    .dinb(32'b0),
-    .enb(1'b0),
-    .web(1'b0),
-    .doutb()
+    .clkb(CLK), 
+    .addrb(debug_pc[8:0]), 
+    .dinb(debug_instr_in[31:0]), 
+    .doutb(debug_instr_out[31:0]), 
+    .enb(debug_enable), 
+    .web(debug_instr_write_en)
 );
 
 // =============================
@@ -166,6 +193,9 @@ sign_extend sign_ext(
     .out(EX_imm_extended)
 );
 
+assign PC_END = {threadID, PC_OUT[threadID]};
+
+
 // =============================
 // Register File Read (Combinational)
 // =============================
@@ -176,8 +206,8 @@ assign ID_Yd_wire = (ID_Rt == 0) ? 64'd0 : reg_file[{ID_threadID, ID_Rt}];
 // ALU instantiation
 // =============================
 // Generate ALU operand B for R-type v/s I-type
-assign EX_operand_A = EX_XD;
-assign EX_operand_B = EX_ALUSrc ? EX_imm_extended : EX_Yd;
+assign EX_operand_A = EX_XD[31:0];
+assign EX_operand_B = EX_ALUSrc ? EX_imm_extended[31:0] : EX_Yd[31:0];
 
 alu_64 theALU (
     .A(EX_operand_A), // No forwarding, use EX_XD directly
@@ -246,7 +276,7 @@ begin
     // =============================
     // MEM pipeline registers
     // =============================
-    MEM_ALU_OUT <= w_alu_result;
+    MEM_ALU_OUT <= {{32{w_alu_result[31]}},w_alu_result};
     MEM_STORE_DATA <= EX_Yd;
     MEM_MemtoReg <= EX_MemtoReg;
     MEM_RegWrite <= EX_RegWrite;
